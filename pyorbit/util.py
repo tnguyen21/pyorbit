@@ -29,7 +29,7 @@ def read_pages(pages_dir: Path) -> List[Dict[str, Dict]]:
     return pages
 
 
-def read_layouts(layouts_dir: Path) -> Dict[str, jinja2.Template]:
+def read_templates(layouts_dir: Path) -> Dict[str, jinja2.Template]:
     env = Environment(loader=FileSystemLoader(layouts_dir))
     layouts = {}
 
@@ -69,8 +69,8 @@ def build_site(
 ):
     if output_dir.exists(): shutil.rmtree(output_dir); output_dir.mkdir()
 
-    partials = read_layouts(partials_dir)
-    templates = read_layouts(layout_dir)
+    partials = read_templates(partials_dir)
+    templates = read_templates(layout_dir)
     pages = read_pages(pages_dir)
     posts = read_pages(posts_dir)
 
