@@ -4,12 +4,13 @@ import time
 
 # TODO make sample theme and use it here
 
-pages_path = Path("site/pages")
-posts_path = Path("site/posts")
-partials_path = Path("site/layouts/partials")
-layouts_path = Path("site/layouts")
+theme_root_path = Path("themes/blank")
+pages_path = Path("themes/blank/pages")
+posts_path = Path("themes/blank/posts")
+partials_path = Path("themes/blank/layouts/partials")
+layouts_path = Path("themes/blank/layouts")
 output_path = Path("_site")
 
 start = time.perf_counter()
-build_site(pages_path, posts_path, partials_path, layouts_path, output_path)
+build_site(theme_root_path, pages_path, posts_path, partials_path, layouts_path, output_path)
 print(f"Built site in {time.perf_counter() - start:.2f} seconds")

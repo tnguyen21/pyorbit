@@ -33,6 +33,7 @@ def read_layouts(layouts_dir: Path) -> Dict[str, jinja2.Template]:
 
 
 def build_site(
+    theme_root: Path,
     pages_dir: Path,
     posts_dir: Path,
     partials_dir: Path,
@@ -45,11 +46,10 @@ def build_site(
     templates = read_layouts(layout_dir)
 
     # compile scss -> css
-    css_path = output_dir / "assets" / "css"
-    css_path.mkdir(parents=True)
+    css_path = output_dir / "assets/css"; css_path.mkdir(parents=True)
     # TODO: move around syntax.scss so it doesnt get outputted to _site
     sass.compile(
-        dirname=("site/assets/css", "_site/assets/css"), output_style="compressed"
+        dirname=(theme_root / "assets/css" , "_site/assets/css"), output_style="compressed"
     )
 
     # build pages
