@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 from pathlib import Path
+import os
 import shutil
 
 import mistune
@@ -24,7 +25,8 @@ def read_pages(pages_dir: Path) -> List[Dict[str, Dict]]:
     for file in pages_dir.glob("**/*.md"):
         with open(file, "r", encoding="utf-8") as f:
             frontmatter, content = parse_frontmatter(f.read())
-            pages.append({**frontmatter, "slug": file.stem, "content": content})
+            slug = file.relative_to(pages_dir).with_suffix("").as_posix()
+            pages.append({**frontmatter, "slug": slug, "content": content})
 
     return pages
 
@@ -49,12 +51,13 @@ def build_page(
         output_dir: Path,
         pages: List[Dict],
         posts: List[Dict],
-        is_post: bool = False):
+        is_post: bool = False
+    ):
     if is_post or page["slug"] == "index" or page["slug"] == "404":
         output_path = output_dir / f"{page['slug']}.html"
     else:
         output_path = output_dir / f"{page['slug']}" / "index.html"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(output_path.parent, exist_ok=True)
     try:
         template = templates[page["layout"]]
         rendered_partials = {k: v.render(**page) for k, v in partials.items()}
@@ -87,5 +90,5 @@ def build_site(
         output_style="compressed",
     )
 
-    for page in pages: build_page(page, templates, partials, output_dir)
-    for post in posts: build_page(post, templates, partials, output_dir, is_post=True)
+    for page in pages: build_page(page, templates, partials, output_dir, pages, posts)
+    for post in posts: build_page(post, templates, partials, output_dir, pages, posts, is_post=True)
