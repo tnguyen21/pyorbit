@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 from pathlib import Path
 import shutil
 
@@ -42,7 +42,14 @@ def read_templates(layouts_dir: Path) -> Dict[str, jinja2.Template]:
     return layouts
 
 
-def build_page(page, templates, partials, output_dir, is_post: bool = False):
+def build_page(
+        page: Dict[str, Any],
+        templates: Dict[str, jinja2.Template],
+        partials: Dict[str, jinja2.Template],
+        output_dir: Path,
+        pages: List[Dict],
+        posts: List[Dict],
+        is_post: bool = False):
     if is_post or page["slug"] == "index" or page["slug"] == "404":
         output_path = output_dir / f"{page['slug']}.html"
     else:
@@ -53,7 +60,7 @@ def build_page(page, templates, partials, output_dir, is_post: bool = False):
         rendered_partials = {k: v.render(**page) for k, v in partials.items()}
         page["content"] = mistune.html(page["content"])
         with open(output_path, "w", encoding="utf-8") as out_f:
-            out_f.write(template.render(**page, **rendered_partials))
+            out_f.write(template.render(**page, **rendered_partials, pages=pages, posts=posts))
     except Exception as e:
         print(f"Error parsing {page['slug'], page['layout']}")
         print(e)
