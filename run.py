@@ -14,6 +14,3 @@ output_path = Path("_site")
 start = time.perf_counter()
 build_site(theme_root_path, pages_path, posts_path, partials_path, layouts_path, output_path)
 print(f"Built site in {time.perf_counter() - start:.2f} seconds")
-
-pgs = read_pages(posts_path)
-print([pg['slug'] for pg in pgs])

@@ -60,7 +60,7 @@ def build_page(
     os.makedirs(output_path.parent, exist_ok=True)
     try:
         template = templates[page["layout"]]
-        rendered_partials = {k: v.render(**page) for k, v in partials.items()}
+        rendered_partials = {k: v.render(**page, posts=posts, pages=pages) for k, v in partials.items()}
         page["content"] = mistune.html(page["content"])
         with open(output_path, "w", encoding="utf-8") as out_f:
             out_f.write(template.render(**page, **rendered_partials, pages=pages, posts=posts))

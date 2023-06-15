@@ -1,6 +1,4 @@
 ---
 title: Home
-layout: page
+layout: home
 ---
-
-- [Example Post 1](/example.html)
