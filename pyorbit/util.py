@@ -54,14 +54,14 @@ def build_site(
 
     # build pages
     for file in pages_dir.glob("*.md"):
-        if file.name == "index.md":
+        if file.name == "index.md" or file.name == "404.md":
             with open(file, "r", encoding="utf=8") as in_f:
                 frontmatter, content = parse_frontmatter(in_f.read())
                 page_name = file.name.replace(".md", "")
                 rendered_partials = {
                     k: v.render(**frontmatter) for k, v in partials.items()
                 }
-                with open(f"_site/index.html", "w", encoding="utf-8") as out_f:
+                with open(f"_site/{file.stem}.html", "w", encoding="utf-8") as out_f:
                     template = templates[frontmatter["layout"]]
                     content = mistune.html(content)
                     out_f.write(
@@ -69,24 +69,25 @@ def build_site(
                             content=content, **rendered_partials, **frontmatter
                         )
                     )
-        try:
-            with open(file, "r", encoding="utf=8") as in_f:
-                frontmatter, content = parse_frontmatter(in_f.read())
-                page_name = file.name.replace(".md", "")
-                rendered_partials = {
-                    k: v.render(**frontmatter) for k, v in partials.items()
-                }
-                (output_dir / page_name / "index.html").parent.mkdir(parents=True)
-                with open(f"_site/{page_name}/index.html", "w", encoding="utf-8") as out_f:
-                    template = templates[frontmatter["layout"]]
-                    content = mistune.html(content)
-                    out_f.write(
-                        template.render(
-                            content=content, **rendered_partials, **frontmatter
+        else:
+            try:
+                with open(file, "r", encoding="utf=8") as in_f:
+                    frontmatter, content = parse_frontmatter(in_f.read())
+                    page_name = file.name.replace(".md", "")
+                    rendered_partials = {
+                        k: v.render(**frontmatter) for k, v in partials.items()
+                    }
+                    (output_dir / page_name / "index.html").parent.mkdir(parents=True)
+                    with open(f"_site/{page_name}/index.html", "w", encoding="utf-8") as out_f:
+                        template = templates[frontmatter["layout"]]
+                        content = mistune.html(content)
+                        out_f.write(
+                            template.render(
+                                content=content, **rendered_partials, **frontmatter
+                            )
                         )
-                    )
-        except ValueError:
-            print(f"Error parsing {file}")
+            except ValueError:
+                print(f"Error parsing {file}")
 
 
     # build posts
