@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
 import shutil
 
@@ -19,6 +19,16 @@ def parse_frontmatter(contents: str):
     return frontmatter, markdown
 
 
+def read_pages(pages_dir: Path) -> List[Dict[str, Dict]]:
+    pages = []
+    for file in pages_dir.glob("**/*.md"):
+        with open(file, "r", encoding="utf-8") as f:
+            frontmatter, content = parse_frontmatter(f.read())
+            pages.append({**frontmatter, "slug": file.stem, "content": content})
+
+    return pages
+
+
 def read_layouts(layouts_dir: Path) -> Dict[str, jinja2.Template]:
     env = Environment(loader=FileSystemLoader(layouts_dir))
     layouts = {}
@@ -30,6 +40,23 @@ def read_layouts(layouts_dir: Path) -> Dict[str, jinja2.Template]:
             print(f"Error parsing {file}")
 
     return layouts
+
+
+def build_page(page, templates, partials, output_dir, is_post: bool = False):
+    if is_post or page["slug"] == "index" or page["slug"] == "404":
+        output_path = output_dir / f"{page['slug']}.html"
+    else:
+        output_path = output_dir / f"{page['slug']}" / "index.html"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        template = templates[page["layout"]]
+        rendered_partials = {k: v.render(**page) for k, v in partials.items()}
+        page["content"] = mistune.html(page["content"])
+        with open(output_path, "w", encoding="utf-8") as out_f:
+            out_f.write(template.render(**page, **rendered_partials))
+    except Exception as e:
+        print(f"Error parsing {page['slug'], page['layout']}")
+        print(e)
 
 
 def build_site(
@@ -44,68 +71,14 @@ def build_site(
 
     partials = read_layouts(partials_dir)
     templates = read_layouts(layout_dir)
+    pages = read_pages(pages_dir)
+    posts = read_pages(posts_dir)
 
-    # compile scss -> css
     css_path = output_dir / "assets/css"; css_path.mkdir(parents=True)
-    # TODO: move around syntax.scss so it doesnt get outputted to _site
     sass.compile(
-        dirname=(theme_root / "assets/css" , "_site/assets/css"), output_style="compressed"
+        dirname=(theme_root / "assets/css", "_site/assets/css"),
+        output_style="compressed",
     )
 
-    # build pages
-    for file in pages_dir.glob("*.md"):
-        if file.name == "index.md" or file.name == "404.md":
-            with open(file, "r", encoding="utf=8") as in_f:
-                frontmatter, content = parse_frontmatter(in_f.read())
-                page_name = file.name.replace(".md", "")
-                rendered_partials = {
-                    k: v.render(**frontmatter) for k, v in partials.items()
-                }
-                with open(f"_site/{file.stem}.html", "w", encoding="utf-8") as out_f:
-                    template = templates[frontmatter["layout"]]
-                    content = mistune.html(content)
-                    out_f.write(
-                        template.render(
-                            content=content, **rendered_partials, **frontmatter
-                        )
-                    )
-        else:
-            try:
-                with open(file, "r", encoding="utf=8") as in_f:
-                    frontmatter, content = parse_frontmatter(in_f.read())
-                    page_name = file.name.replace(".md", "")
-                    rendered_partials = {
-                        k: v.render(**frontmatter) for k, v in partials.items()
-                    }
-                    (output_dir / page_name / "index.html").parent.mkdir(parents=True)
-                    with open(f"_site/{page_name}/index.html", "w", encoding="utf-8") as out_f:
-                        template = templates[frontmatter["layout"]]
-                        content = mistune.html(content)
-                        out_f.write(
-                            template.render(
-                                content=content, **rendered_partials, **frontmatter
-                            )
-                        )
-            except ValueError:
-                print(f"Error parsing {file}")
-
-
-    # build posts
-    for file in posts_dir.glob("**/*.md"):
-        try:
-            with open(file, "r", encoding="utf=8") as in_f:
-                frontmatter, content = parse_frontmatter(in_f.read())
-                html_name = file.name.replace(".md", ".html")
-                rendered_partials = {
-                    k: v.render(**frontmatter) for k, v in partials.items()
-                }
-                with open(f"_site/{html_name}", "w", encoding="utf-8") as out_f:
-                    template = templates[frontmatter["layout"]]
-                    content = mistune.html(content)
-                    out_f.write(
-                        template.render(
-                            content=content, **rendered_partials, **frontmatter
-                        )
-                    )
-        except ValueError:
-            print(f"Error parsing {file}")
+    for page in pages: build_page(page, templates, partials, output_dir)
+    for post in posts: build_page(post, templates, partials, output_dir, is_post=True)

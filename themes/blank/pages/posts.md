@@ -1,5 +1,5 @@
 ---
-title: Home
+title: Posts
 layout: page
 ---
 
