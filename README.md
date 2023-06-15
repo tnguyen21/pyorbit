@@ -22,3 +22,7 @@ super rough, subject to change rapidly
 - incrementally build pages (don't do full rebuilds every time we build site)
 - add file watching/serving so you can live edit files and re-build (for live editing + feedback)
 - docs
+- add GH actions or smthin so we can autodeploy sites built w this on GH pages
+- also add instructions for hosting on other platforms
+  - AWS S3 buckets
+  - Netlify   
