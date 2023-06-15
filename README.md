@@ -13,6 +13,7 @@ super rough, subject to change rapidly
 2. `./venv/Scripts/activate`
 3. `pip install -r requirements-dev.txt`
 4. `python run`
+5. (optional if you want to see site in browser) `python -m http.server --directory _site`
 
 
 ## TODO
