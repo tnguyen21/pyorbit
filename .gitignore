@@ -1,6 +1,8 @@
 .vscode
 venv
 
+_site
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
