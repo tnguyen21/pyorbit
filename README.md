@@ -17,7 +17,6 @@ super rough, subject to change rapidly
 
 
 ## TODO
-- make a sample theme and include it in the repo
 - add nice CLI tool
 - support code highlighting?
 - incrementally build pages (don't do full rebuilds every time we build site)
