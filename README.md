@@ -2,6 +2,16 @@
 
 Yet another static site generator written in Python.
 
+## Why pyorbit > other SSGs ???
+
+building this site (4 posts and some layouts) from scratch [takes ~200 ms](https://twitter.com/tommy_b_nguyen/status/1669071006319648769).
+in my experience with jekyll on my personal blog (30 posts) it takes 6000-7000 ms to build the site from scratch.
+
+aside from being a bit faster at building the site, pyorbit is < 100 LOC of python with 3 dependencies.
+a tiny project with enough room to explore new features as a learning project (whether you're new to python, or want to try out a relevant library).
+and although pyorbit is small, it has enough features that with a bit of effort i would be able to recreate my [personal site](https://tommynguyen.dev/) with it.
+so it has just enough functionality to be used in the wild.
+see below for features that would take me from actually replacing using jekyll in my personal blog.
 
 ## Preqreqs
 - have python3 (tested with Python 3.10, not sure about others)
